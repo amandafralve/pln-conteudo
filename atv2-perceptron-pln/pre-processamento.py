@@ -1,10 +1,6 @@
 import nltk
 import string
 
-# Caso ainda não tenha baixado os recursos do NLTK, execute:
-# nltk.download('punkt')
-# nltk.download('punkt_tab')
-# nltk.download('stopwords')
 
 # Base de dados com 20 avaliações
 textos = [
@@ -58,7 +54,6 @@ palavras_negacao = ["não", "nunca", "nem", "jamais"]
 for palavra in palavras_negacao:
     if palavra in stop_words:
         stop_words.remove(palavra)
-
 
 # Pontuação comum e alguns sinais adicionais
 pontuacao = string.punctuation + "“”‘’—–…"
