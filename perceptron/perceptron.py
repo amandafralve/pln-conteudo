@@ -26,7 +26,8 @@ for entrada in X:
         print("Acertou")
     else:
         print("Errrou")
-        for p in pesos:
-            p = p + taxaAprendizagem * (yp-classeReal)*xi
+        i=0 
+        for i in range(2):
+            pesos[i] = pesos[i] + (yp-classeReal)*xi
 
     soma = 0
