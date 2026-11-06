@@ -4,7 +4,7 @@ import random
 
 # nltk.download("stopwords")
 # nltk.download("punkt")
-# nltk.download("punkt_tab")  
+# nltk.download("punkt_tab")
 
 # 1. CRIAÇÃO DA BASE DE DADOS
 # Base de dados com 20 avaliações, com id, texto e classe
@@ -54,12 +54,12 @@ textos = [
 # Obter stopwords em português
 stop_words = nltk.corpus.stopwords.words("portuguese")
 
-# Preservar palavras de negação importantes para análise de sentimentos
+# preservando palavras de negação para a análise
 palavras_negacao = ["não", "nunca", "nem", "jamais"]
 for palavra in palavras_negacao:
     if palavra in stop_words:
         stop_words.remove(palavra)
-        
+
 stop_words = set(stop_words)
 pontuacao = string.punctuation + "“”‘’—–…"
 textos_processados = []
@@ -92,17 +92,16 @@ print("\nTotal de avaliações processadas:", len(textos_processados))
 # Contar em quantas avaliações cada palavra aparece
 contagem = {}
 for palavras in textos_processados:
-    for palavra in set(palavras):  # set: conta no máximo 1x por avaliação
+    for palavra in set(palavras):  #conta no máximo 1x por avaliação
         contagem[palavra] = contagem.get(palavra, 0) + 1
-        
-# criar o vocabulário: palavras que aparecem em pelo menos 2 avaliações
+
+# vocabulário: palavras que aparecem em pelo menos 2 avaliações
 vocabulario = sorted(
     palavra for palavra, freq in contagem.items() if freq >= 2
 )
 
 print("Tamanho do vocabulário:", len(vocabulario))
-print("Vocabulário:")
-print(vocabulario)
+print("Vocabulário:", vocabulario)
 
 # Transformar cada avaliação em um vetor binário
 # 1 = a palavra do vocabulário aparece na avaliação
@@ -116,11 +115,9 @@ for palavras in textos_processados:
 # Classes (rótulos) na mesma ordem dos vetores
 y = [item["classe"] for item in textos]
 
-# 3.4 Conferência
+# Conferência
 print("\nDimensão de X:", len(X), "avaliações x", len(X[0]), "palavras")
 print("Dimensão de y:", len(y))
-
-import random
 
 # 4. IMPLEMENTAÇÃO DO PERCEPTRON
 random.seed(42)
@@ -136,7 +133,7 @@ pesos = [random.uniform(-0.5, 0.5) for _ in range(n_caracteristicas)]
 bias = random.uniform(-0.5, 0.5)
 
 def calcular_soma(vetor):
-    # Soma = (x1*w1) + (x2*w2) + ... + (xn*wn) + bias
+    # Soma
     return sum(x * w for x, w in zip(vetor, pesos)) + bias
 
 def prever(vetor):
@@ -144,7 +141,8 @@ def prever(vetor):
 
 
 # 5. TREINAMENTO
-print("=== TREINAMENTO ===")
+print("\nTREINAMENTO")
+epocas_treinadas = 0
 for epoca in range(1, max_epocas + 1):
     erros = 0
     for vetor, classe_real in zip(X, y):
@@ -157,14 +155,12 @@ for epoca in range(1, max_epocas + 1):
             bias += taxa_aprendizagem * erro
             erros += 1
 
+    epocas_treinadas = epoca
     print(f"Época {epoca}: {erros} erros")
 
-    if erros == 0:
-        print(f"Treinamento interrompido na época {epoca}: nenhum erro.")
-        break
 
-# 6. TESTE DO MODELO 
-print("\n=== TESTE DO MODELO ===")
+# 6. TESTE DO MODELO
+print("\nTESTE DO MODELO")
 nome_classe = {1: "Positiva", 0: "Negativa"}
 corretas = 0
 incorretas_ids = []
@@ -190,7 +186,7 @@ total = len(textos)
 incorretas = total - corretas
 acuracia = (corretas / total) * 100
 
-print("\n=== ACURÁCIA ===")
+print("\nACURÁCIA")
 print(f"Total de avaliações: {total}")
 print(f"Classificações corretas: {corretas}")
 print(f"Classificações incorretas: {incorretas}")
@@ -216,15 +212,22 @@ novas_avaliacoes = [
     {"texto": "Achei cansativa e repetitiva, o roteiro não me conquistou.", "classe": 0},
     {"texto": "Leitura divertida, com boas ideias e ilustrações detalhadas.", "classe": 1},
     {"texto": "A obra foi decepcionante, com diálogos artificiais e final fraco.", "classe": 0},
+    # casos difíceis para o Bag of Words (negação e ironia)
+    {"texto": "A história não é ruim, achei bem divertida e envolvente.", "classe": 1},
+    {"texto": "Que maravilha, mais uma história previsível e cansativa. Parabéns!", "classe": 0},
 ]
 
-print("\n=== TESTE COM NOVAS AVALIAÇÕES ===")
+print("\nTESTE COM NOVAS AVALIAÇÕES")
 acertos_novas = 0
+incorretas_novas = []
 
 for i, nova in enumerate(novas_avaliacoes, start=1):
     classe_prevista = prever(vetorizar(nova["texto"]))
     acertou = classe_prevista == nova["classe"]
     acertos_novas += acertou
+
+    if not acertou:
+        incorretas_novas.append(i)
 
     print(f"\nNova avaliação {i}")
     print(f"Texto: {nova['texto']}")
@@ -232,4 +235,12 @@ for i, nova in enumerate(novas_avaliacoes, start=1):
     print(f"Classe prevista: {classe_prevista} ({nome_classe[classe_prevista]})")
     print(f"Resultado: {'Correto' if acertou else 'Incorreto'}")
 
-print(f"\nAcertos nas novas avaliações: {acertos_novas}/{len(novas_avaliacoes)}")
+acuracia_novas = (acertos_novas / len(novas_avaliacoes)) * 100
+
+print("\nACURÁCIA NAS NOVAS AVALIAÇÕES")
+print(f"Total de avaliações: {len(novas_avaliacoes)}")
+print(f"Classificações corretas: {acertos_novas}")
+print(f"Classificações incorretas: {len(novas_avaliacoes) - acertos_novas}")
+print(f"Acurácia: {acuracia_novas:.0f}%")
+print(f"Números classificados incorretamente: {incorretas_novas}")
+
