@@ -2,9 +2,9 @@ import nltk
 import string
 import random
 
-# nltk.download("stopwords")
-# nltk.download("punkt")
-# nltk.download("punkt_tab")
+nltk.download("stopwords")
+nltk.download("punkt")
+nltk.download("punkt_tab")
 
 # 1. CRIAÇÃO DA BASE DE DADOS
 # Base de dados com 20 avaliações, com id, texto e classe
@@ -142,7 +142,6 @@ def prever(vetor):
 
 # 5. TREINAMENTO
 print("\nTREINAMENTO")
-epocas_treinadas = 0
 for epoca in range(1, max_epocas + 1):
     erros = 0
     for vetor, classe_real in zip(X, y):
@@ -157,6 +156,9 @@ for epoca in range(1, max_epocas + 1):
 
     epocas_treinadas = epoca
     print(f"Época {epoca}: {erros} erros")
+    if erros == 0:
+        print("Treinamento interrompido: nenhum erro nesta época.")
+        break
 
 
 # 6. TESTE DO MODELO
