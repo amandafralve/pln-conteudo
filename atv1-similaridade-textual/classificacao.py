@@ -54,19 +54,20 @@ def jaccard(palavras1, palavras2):
     p1 = set(palavras1)
     p2 = set(palavras2)
 
-    # Intersecção: palavras presentes nos dois textos
     interseccao = 0
+    # Calcular a intersecção dos 2 conjuntos
     for palavra1 in p1:
         for palavra2 in p2:
             if palavra1 == palavra2:
                 interseccao = interseccao + 1
 
-    # União: |A| + |B| - |A ∩ B|  (a intersecção é subtraída para não contar duas vezes)
     uniao = (len(p1) + len(p2)) - interseccao
 
     if uniao == 0:
-        return 0.0
-    return interseccao / uniao
+        resultado = 0.0
+    else:
+        resultado = interseccao / uniao
+    return resultado
 
 
 # DISTÂNCIA DE LEVENSHTEIN
@@ -74,7 +75,7 @@ def levenshtein(seq1, seq2):
     # criar uma matriz
     size_x = len(seq1) + 1
     size_y = len(seq2) + 1
-    matrix = np.zeros((size_x, size_y))
+    matrix = np.zeros((size_x, size_y), dtype=int)
 
     # atribuir valor aos números das colunas (0,n-1)
     for x in range(size_x):
@@ -98,7 +99,7 @@ def levenshtein(seq1, seq2):
     return int(matrix[size_x - 1, size_y - 1])
 
 
-# Para Levenshtein, as palavras processadas voltam a ser uma string 
+# Para Levenshtein, as palavras processadas voltam a ser uma string
 textos_str = [" ".join(palavras) for palavras in textos_processados]
 
 pos_tokens, neg_tokens = textos_processados[0], textos_processados[1]
@@ -134,12 +135,20 @@ for i in range(len(df)):
 
 df_resultado = pd.DataFrame(resultados)
 
-# TABELA DE RESULTADOS
-pd.set_option("display.width", 200)
-pd.set_option("display.max_colwidth", 40)
-print(df_resultado.to_string(index=False))
+# TABELA DE RESULTADOS (versão resumida só para exibição no terminal)
+def resumir(texto, qtd_palavras=6):
+    palavras = texto.split()
+    resumo = " ".join(palavras[:qtd_palavras])
+    # só coloca "..." se o texto realmente foi cortado
+    return resumo + "..." if len(palavras) > qtd_palavras else resumo
 
-# Exportação para Excel
+df_exibicao = df_resultado.copy()
+df_exibicao["Avaliação"] = df_exibicao["Avaliação"].apply(resumir)
+
+pd.set_option("display.width", 200)
+print(df_exibicao.to_string(index=False))
+
+# Exportação para Excel (usa o df_resultado, com o texto completo)
 df_resultado.to_excel(PASTA_ATUAL / "resultados_classificacao.xlsx", index=False)
 
 # ANÁLISE DOS RESULTADOS
